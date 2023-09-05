@@ -112,7 +112,7 @@ class BasePlugin:
 
     domoticz_levels = {}
     domoticz_levels["mode"] = {"0": 0, "10": 1, "20": 3, "30": 7, "40": 2, "50": 8}
-    domoticz_levels["mode_pic"] = {"0": 9, "10": 15, "20": 16, "30": 7, "40": 11, "50": 10}
+    domoticz_levels["mode_pic"] = {"0": 9, "10": 15, "20": 16, "30": 7, "40": 11, "50": 9}
     domoticz_levels["fan"] = {"0": 1, "10": 2, "20": 3, "30": 4, "40": 255, "50": 0, "60": 1}
     domoticz_levels["temp"] = {"0": 16, "10": 17, "20": 18, "30": 19, "40": 20, "50": 21,
                                "60": 22, "70": 23, "80": 24, "90": 25, "100": 26,
@@ -326,7 +326,7 @@ class BasePlugin:
                 Devices[1+current_unit['idoffset']].Update(nValue=1, sValue=str(Level), Image=11)
             elif Level == 50:
                 Domoticz.Log("Set to Auto the unit "+current_unit['name'])
-                Devices[1+current_unit['idoffset']].Update(nValue=1, sValue=str(Level), Image=10)
+                Devices[1+current_unit['idoffset']].Update(nValue=1, sValue=str(Level), Image=9)
             if Level != 0:
                 flag = 1
                 current_unit['power'] = 'true'
