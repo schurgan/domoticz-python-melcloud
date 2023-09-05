@@ -1,8 +1,9 @@
 # MELCloud Plugin
-# Author:     Gysmo, 2017
+# Author:     Gysmo/schurgan, 2017/2023
 # Version: 0.7.7
 #
 # Release Notes:
+# v0.7.9: Zeile 116 und 330 wegen Fehler vervollständigt/korregiert
 # v0.7.8: Code optimization
 # v0.7.7: Add test on domoticz dummy
 # v0.7.6: Fix Auto Mode added
@@ -25,7 +26,7 @@
 #        Usefull if you use your Mitsubishi remote
 # v0.1 : Initial release
 """
-<plugin key="MELCloud" version="0.7.8" name="MELCloud plugin" author="gysmo" wikilink="http://www.domoticz.com/wiki/Plugins/MELCloud.html" externallink="http://www.melcloud.com">
+<plugin key="MELCloud" version="0.7.9" name="MELCloud plugin" author="gysmo/schurgan" wikilink="http://www.domoticz.com/wiki/Plugins/MELCloud.html" externallink="http://www.melcloud.com">
     <params>
         <param field="Username" label="Email" width="200px" required="true" />
         <param field="Password" label="Password" width="200px" required="true" password="true"/>
