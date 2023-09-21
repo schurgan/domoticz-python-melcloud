@@ -1,6 +1,6 @@
 # MELCloud Plugin
 # Author:     Gysmo/schurgan, 2017/2023
-# Version: 0.7.7
+# Version: 0.7.9
 #
 # Release Notes:
 # v0.7.9: Zeile 116 und 330 wegen Fehler vervollständigt/korregiert
@@ -128,7 +128,7 @@ class BasePlugin:
         return
 
     def onStart(self):
-        Domoticz.Heartbeat(25)
+        Domoticz.Heartbeat(60)
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(-1)
         # Start connection to MELCloud
@@ -454,7 +454,7 @@ class BasePlugin:
         return True
 
     def melcloud_login(self):
-        data = "AppVersion=1.9.3.0&Email={0}&Password={1}".format(Parameters["Username"], Parameters["Password"])
+        data = "AppVersion=1.28.1.0&Email={0}&Password={1}".format(Parameters["Username"], Parameters["Password"])
         self.melcloud_send_data(self.melcloud_urls["login"], data, "LOGIN")
         return True
 
