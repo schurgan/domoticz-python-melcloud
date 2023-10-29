@@ -240,20 +240,20 @@ class BasePlugin:
                     # Search in floors
                     (nr_of_Units, idoffset, cEnergyConsumed) = self.searchUnits(building, "Floors", idoffset)
                 self.melcloud_create_units()
-            elif self.melcloud_state == "UNIT_INFO":
-                for unit in self.list_units:
-                    if unit['id'] == response['DeviceID']:
-                        Domoticz.Log("Update unit {0} information.".format(unit['name']))
-                        unit['power'] = response['Power']
-                        unit['op_mode'] = response['OperationMode']
-                        unit['room_temp'] = response['RoomTemperature']
-                        unit['set_temp'] = response['SetTemperature']
-                        unit['set_fan'] = response['SetFanSpeed']
-                        unit['vaneH'] = response['VaneHorizontal']
-                        unit['vaneV'] = response['VaneVertical']
-                        unit['next_comm'] = False
-                        Domoticz.Debug("Heartbeat unit info: "+str(unit))
-                        self.domoticz_sync_switchs(unit)
+            #elif self.melcloud_state == "UNIT_INFO":
+              #  for unit in self.list_units:
+                  # if unit['id'] == response['DeviceID']:
+                       # Domoticz.Log("Update unit {0} information.".format(unit['name']))
+                      #  unit['power'] = response['Power']
+                      #  unit['op_mode'] = response['OperationMode']
+                      #  unit['room_temp'] = response['RoomTemperature']
+                      #  unit['set_temp'] = response['SetTemperature']
+                      #  unit['set_fan'] = response['SetFanSpeed']
+                       # unit['vaneH'] = response['VaneHorizontal']
+                      #  unit['vaneV'] = response['VaneVertical']
+                      #  unit['next_comm'] = False
+                       # Domoticz.Debug("Heartbeat unit info: "+str(unit))
+                      #  self.domoticz_sync_switchs(unit)
             elif self.melcloud_state == "SET":
                 for unit in self.list_units:
                     if unit['id'] == response['DeviceID']:
