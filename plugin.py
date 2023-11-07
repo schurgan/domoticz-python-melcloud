@@ -252,7 +252,7 @@ class BasePlugin:
                         unit['vaneH'] = response['VaneHorizontal']
                         unit['vaneV'] = response['VaneVertical']
                         unit['next_comm'] = False
-                        #Domoticz.Debug("Heartbeat unit info: "+str(unit))
+                        Domoticz.Debug("Heartbeat unit info: "+str(unit))
                         self.domoticz_sync_switchs(unit)
             elif self.melcloud_state == "SET":
                 for unit in self.list_units:
