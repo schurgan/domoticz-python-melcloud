@@ -1,9 +1,9 @@
 # MELCloud Plugin
-# Author:     Gysmo/schurgan, 2017/2023
+# Author:     Gysmo/schurgan, 2023
 # Version: 0.7.9
 #
 # Release Notes:
-# v0.7.9: Zeile 116 und 330 wegen Fehler vervollständigt/korregiert
+# v0.7.9: Fehlerbeseitigung Zeile 116
 # v0.7.8: Code optimization
 # v0.7.7: Add test on domoticz dummy
 # v0.7.6: Fix Auto Mode added
@@ -26,7 +26,7 @@
 #        Usefull if you use your Mitsubishi remote
 # v0.1 : Initial release
 """
-<plugin key="MELCloud" version="0.7.9" name="MELCloud plugin" author="gysmo/schurgan" wikilink="http://www.domoticz.com/wiki/Plugins/MELCloud.html" externallink="http://www.melcloud.com">
+<plugin key="MELCloud" version="0.7.8" name="MELCloud plugin" author="gysmo" wikilink="http://www.domoticz.com/wiki/Plugins/MELCloud.html" externallink="http://www.melcloud.com">
     <params>
         <param field="Username" label="Email" width="200px" required="true" />
         <param field="Password" label="Password" width="200px" required="true" password="true"/>
@@ -240,20 +240,20 @@ class BasePlugin:
                     # Search in floors
                     (nr_of_Units, idoffset, cEnergyConsumed) = self.searchUnits(building, "Floors", idoffset)
                 self.melcloud_create_units()
-            #elif self.melcloud_state == "UNIT_INFO":
-              #  for unit in self.list_units:
-                  # if unit['id'] == response['DeviceID']:
-                       # Domoticz.Log("Update unit {0} information.".format(unit['name']))
-                      #  unit['power'] = response['Power']
-                      #  unit['op_mode'] = response['OperationMode']
-                      #  unit['room_temp'] = response['RoomTemperature']
-                      #  unit['set_temp'] = response['SetTemperature']
-                      #  unit['set_fan'] = response['SetFanSpeed']
-                       # unit['vaneH'] = response['VaneHorizontal']
-                      #  unit['vaneV'] = response['VaneVertical']
-                      #  unit['next_comm'] = False
-                       # Domoticz.Debug("Heartbeat unit info: "+str(unit))
-                      #  self.domoticz_sync_switchs(unit)
+            elif self.melcloud_state == "UNIT_INFO":
+                for unit in self.list_units:
+                    if unit['id'] == response['DeviceID']:
+                        Domoticz.Log("Update unit {0} information.".format(unit['name']))
+                        unit['power'] = response['Power']
+                        unit['op_mode'] = response['OperationMode']
+                        unit['room_temp'] = response['RoomTemperature']
+                        unit['set_temp'] = response['SetTemperature']
+                        unit['set_fan'] = response['SetFanSpeed']
+                        unit['vaneH'] = response['VaneHorizontal']
+                        unit['vaneV'] = response['VaneVertical']
+                        unit['next_comm'] = False
+                        #Domoticz.Debug("Heartbeat unit info: "+str(unit))
+                        self.domoticz_sync_switchs(unit)
             elif self.melcloud_state == "SET":
                 for unit in self.list_units:
                     if unit['id'] == response['DeviceID']:
@@ -274,7 +274,7 @@ class BasePlugin:
                             if hours > 24:
                                 hours = hours - 24
                         next_comm = date + " " + str(hours) + ":" + minutes + ":" + sec
-                        unit['next_comm'] = "Update for last command at "+next_comm
+                        unit['next_comm'] = "Update for last command at " + next_comm
                         Domoticz.Log("Next update for command: " + next_comm)
                         self.domoticz_sync_switchs(unit)
             else:
@@ -391,6 +391,7 @@ class BasePlugin:
         else:
             self.runAgain = self.runAgain - 1
             if self.runAgain <= 0:
+                self.list_units.clear()                                       
                 self.melcloud_conn = Domoticz.Connection(Name="MELCloud", Transport="TCP/IP", Protocol="HTTPS",
                                                          Address=self.melcloud_baseurl, Port=self.melcloud_port)
                 self.melcloud_key = None
