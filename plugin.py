@@ -3,7 +3,7 @@
 # Version: 0.7.9
 #
 # Release Notes:
-# v0.7.9: Fehlerbeseitigung Zeile 116
+# v0.7.9: Fehlerbeseitigung Zeile 116 und 330
 # v0.7.8: Code optimization
 # v0.7.7: Add test on domoticz dummy
 # v0.7.6: Fix Auto Mode added
