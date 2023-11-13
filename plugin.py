@@ -431,13 +431,13 @@ class BasePlugin:
         self.runCounter = self.runCounter - 1
         if (self.runCounter <= 0):
             Domoticz.Debug("Poll unit")
-        if (self.melcloud_conn is not None and (self.melcloud_conn.Connecting() or self.melcloud_conn.Connected())):
-            if self.melcloud_state != "LOGIN_FAILED":
-                Domoticz.Debug("Current MEL Cloud Key ID:"+str(self.melcloud_key))
-                for unit in self.list_units:
-                    self.melcloud_get_unit_info(unit)
+            self.runCounter = int(Parameters['Mode2'])
+            if (self.melcloud_conn is not None and (self.melcloud_conn.Connecting() or self.melcloud_conn.Connected())):
+               if self.melcloud_state != "LOGIN_FAILED":
+                   Domoticz.Debug("Current MEL Cloud Key ID:"+str(self.melcloud_key))
+                   for unit in self.list_units:
+                       self.melcloud_get_unit_info(unit)
         else:
-            else:
             Domoticz.Debug("Polling unit in " + str(self.runCounter) + " heartbeats.")
         # Connection
         if (self.melcloud_conn is None or self.melcloud_state == "LOGIN_FAILED" or self.melcloud_state == "Not Ready"):
