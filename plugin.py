@@ -1,8 +1,9 @@
 # MELCloud Plugin
-# Author:     Gysmo/schurgan, 2023
-# Version: 0.7.9
+# Author:     Gysmo/schurgan/Dalonsic, 2023
+# Version: 0.8.0
 #
 # Release Notes:
+# v0.8.0: Heartbeat Interval + Spracheinstellung
 # v0.7.9: Fehlerbeseitigung Zeile 116 und 330
 # v0.7.8: Code optimization
 # v0.7.7: Add test on domoticz dummy
@@ -26,7 +27,7 @@
 #        Usefull if you use your Mitsubishi remote
 # v0.1 : Initial release
 """
-<plugin key="MELCloud" version="0.7.8" name="MELCloud plugin" author="gysmo" wikilink="http://www.domoticz.com/wiki/Plugins/MELCloud.html" externallink="http://www.melcloud.com">
+<plugin key="MELCloud" version="0.8.0" name="MELCloud plugin" author="gysmo schurgan dalonsic" wikilink="http://www.domoticz.com/wiki/Plugins/MELCloud.html" externallink="http://www.melcloud.com">
     <params>
         <param field="Username" label="Email" width="200px" required="true" />
         <param field="Password" label="Password" width="200px" required="true" password="true"/>
@@ -57,6 +58,48 @@
                 <option label="+10" value="+10"/>
                 <option label="+11" value="+11"/>
                 <option label="+12" value="+12"/>
+            </options>
+        </param>
+        <param field="Mode2" label="Refresh interval" width="100px">
+            <options>
+                <option label="1s" value="1"/>
+                <option label="5s" value="5"/>
+                <option label="10s" value="10"/>
+                <option label="20s - local" value="20"/>
+                <option label="1m" value="60"/>
+                <option label="2m" value="120" default="true"/>
+                <option label="5m - web" value="300"/>
+                <option label="10m" value="600"/>
+            </options>
+        </param>
+        <param field="Mode3" label="Language" width="100px">
+            <options>
+                <option label="English"     value="0" default="true"/>
+                <option label="Български"   value="1"/>
+                <option label="Čeština"     value="2"/>
+                <option label="Dansk"       value="3"/>
+                <option label="Deutsch"     value="4"/>
+                <option label="Eesti"       value="5"/>
+                <option label="Español"     value="6"/>
+                <option label="Français"    value="7"/>
+                <option label="Հայերեն"     value="8"/>
+                <option label="Latviešu"    value="9"/>
+                <option label="Lietuvių"    value="10"/>
+                <option label="Magyar"      value="11"/>
+                <option label="Nederlands"  value="12"/>
+                <option label="Norwegian"   value="13"/>
+                <option label="Polski"      value="14"/>
+                <option label="Português"   value="15"/>
+                <option label="Русский"     value="16"/>
+                <option label="Suomi"       value="17"/>
+                <option label="Svenska"     value="18"/>
+                <option label="Italiano"    value="19"/>
+                <option label="Українська"  value="20"/>
+                <option label="Türkçe"      value="21"/>
+                <option label="Ελληνικά"    value="22"/>
+                <option label="Hrvatski"    value="23"/>
+                <option label="Română"      value="24"/>
+                <option label="Slovenščina" value="25"/>
             </options>
         </param>
         <param field="Mode6" label="Debug" width="150px">
@@ -121,6 +164,7 @@ class BasePlugin:
     domoticz_levels["vaneH"] = {"0": 1, "10": 2, "20": 3, "30": 4, "40": 5, "50": 12, "60": 0}
     domoticz_levels["vaneV"] = {"0": 1, "10": 2, "20": 3, "30": 4, "40": 5, "50": 7, "60": 0}
 
+    runCounter = 0
     runAgain = 6
     enabled = False
 
@@ -128,12 +172,12 @@ class BasePlugin:
         return
 
     def onStart(self):
-        Domoticz.Heartbeat(60)
+        self.runCounter = int(Parameters['Mode2'])
+        Domoticz.Heartbeat(1)
+        
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(-1)
         # Start connection to MELCloud
-        #Domoticz.Debugging(62)
-        #Domoticz.Debugging(-1)
         self.melcloud_conn = Domoticz.Connection(Name="MELCloud", Transport="TCP/IP",
                                                  Protocol="HTTPS", Address=self.melcloud_baseurl,
                                                  Port=self.melcloud_port)
@@ -383,12 +427,20 @@ class BasePlugin:
         self.runAgain = 1
 
     def onHeartbeat(self):
+        # Unit info
+        self.runCounter = self.runCounter - 1
+        if (self.runCounter <= 0):
+            Domoticz.Debug("Poll unit")
         if (self.melcloud_conn is not None and (self.melcloud_conn.Connecting() or self.melcloud_conn.Connected())):
             if self.melcloud_state != "LOGIN_FAILED":
                 Domoticz.Debug("Current MEL Cloud Key ID:"+str(self.melcloud_key))
                 for unit in self.list_units:
                     self.melcloud_get_unit_info(unit)
         else:
+            else:
+            Domoticz.Debug("Polling unit in " + str(self.runCounter) + " heartbeats.")
+        # Connection
+        if (self.melcloud_conn is None or self.melcloud_state == "LOGIN_FAILED" or self.melcloud_state == "Not Ready"):
             self.runAgain = self.runAgain - 1
             if self.runAgain <= 0:
                 self.list_units.clear()                                       
@@ -397,6 +449,7 @@ class BasePlugin:
                 self.melcloud_key = None
                 self.melcloud_conn.Connect()
                 self.runAgain = 6
+                self.runCounter = 0
             else:
                 Domoticz.Debug("MELCloud https failed. Reconnected in "+str(self.runAgain)+" heartbeats.")
 
