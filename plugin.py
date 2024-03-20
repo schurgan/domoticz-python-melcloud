@@ -173,7 +173,7 @@ class BasePlugin:
 
     def onStart(self):
         self.runCounter = int(Parameters['Mode2'])
-        Domoticz.Heartbeat(1)
+        Domoticz.Heartbeat(60)
         
         if Parameters["Mode6"] == "Debug":
             Domoticz.Debugging(-1)
