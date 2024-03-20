@@ -11,7 +11,7 @@ git clone https://github.com/schurgan/domoticz-python-melcloud.git
 ## Plugin update
 
 ```
-cd domoticz/plugins/Melcloud
+cd domoticz/plugins/domoticz-python-melcloud
 git pull
 ```
 ## Testing without Domoticz
