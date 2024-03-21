@@ -508,7 +508,7 @@ class BasePlugin:
         return True
 
     def melcloud_login(self):
-        data = "AppVersion=1.28.1.0&Email={0}&Password={1}".format(Parameters["Username"], Parameters["Password"])
+        data = "AppVersion=1.28.1.0&Email={0}&Password={1}&Language={2}".format(Parameters["Username"], Parameters["Password"], int(Parameters["Mode3"]))
         self.melcloud_send_data(self.melcloud_urls["login"], data, "LOGIN")
         #post_fields = "Appversion:'{0}',CaptchaResponse:{1},Email:'{2}',Language:{3},Password:'{4}',Persist:{5}"
         #post_fields = post_fields.format(str("1.23.4.0"), "null",str(Parameters["Username"]), int(Parameters["Mode3"]), str(Parameters["Password"]), "true")
