@@ -324,7 +324,7 @@ class BasePlugin:
             else:
                 Domoticz.Log("State not implemented:" + self.melcloud_state)
         else:
-            Domoticz.Log("MELCloud receive unknonw message with error code "+Data["Status"])
+            Domoticz.Log("MELCloud receive unknown message with error code "+Data["Status"])
 
     def onCommand(self, Unit, Command, Level, Hue):
         Domoticz.Log("onCommand called for Unit " + str(Unit) +
