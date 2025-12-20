@@ -175,8 +175,12 @@ class BasePlugin:
         # ensure instance-local state
         self.list_units = []
         
-        self.runCounter = int(Parameters['Mode2'])
-        Domoticz.Heartbeat(10)
+        self.heartbeat_interval = 10  # Sekunden
+        Domoticz.Heartbeat(self.heartbeat_interval)
+
+        refresh_seconds = int(Parameters['Mode2'])
+        self.runCounter = max(1, int(refresh_seconds / self.heartbeat_interval))
+        
         self.dict_devices = {}
         ##self.set_last_ts = {}
         ##self.set_min_interval = 2.0  # Sekunden
@@ -482,7 +486,9 @@ class BasePlugin:
         self.runCounter = self.runCounter - 1
         if (self.runCounter <= 0):
             Domoticz.Debug("Poll unit")
-            self.runCounter = int(Parameters['Mode2'])
+            refresh_seconds = int(Parameters['Mode2'])
+            self.runCounter = max(1, int(refresh_seconds / self.heartbeat_interval))
+            ##self.runCounter = int(Parameters['Mode2'])
             if (self.melcloud_conn is not None and (self.melcloud_conn.Connecting() or self.melcloud_conn.Connected())):
                if self.melcloud_state != "LOGIN_FAILED":
                    Domoticz.Debug("Current MEL Cloud Key ID:"+str(self.melcloud_key))
