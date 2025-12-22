@@ -1,8 +1,10 @@
 # MELCloud Plugin
 # Author:     Gysmo/schurgan/Dalonsic/ChatGPT, 12.2025
-# Version: 0.9.0
+# Version: 1.0.0
 #
 # Release Notes:
+# v1.0.0: Endversion, code Optimierung/Säuberung.
+# v0.9.0: Stabiler JSON-SET, Rate-Limit für UNIT_INFO, Fix Heartbeat / Race Conditions
 # v0.8.0: Heartbeat Interval + Spracheinstellung
 # v0.7.9: Fehlerbeseitigung Zeile 116 und 330
 # v0.7.8: Code optimization
@@ -166,8 +168,7 @@ class BasePlugin:
 
     runCounter = 0
     runAgain = 6
-    ##enabled = False
-
+    
     def __init__(self):
         return
 
@@ -182,8 +183,6 @@ class BasePlugin:
         self.runCounter = max(1, int(refresh_seconds / self.heartbeat_interval))
         
         self.dict_devices = {}
-        ##self.set_last_ts = {}
-        ##self.set_min_interval = 2.0  # Sekunden
         self.unit_info_last_ts = {}
         self.unit_info_min_interval = 2.0
         
@@ -236,9 +235,6 @@ class BasePlugin:
             return 0.0
 
     def searchUnits(self, building, scope, idoffset):
-        # building["Structure"]["Devices"]
-        # building["Structure"]["Areas"]
-        # building["Structure"]["Floors"]
         nr_of_Units = 0
         cEnergyConsumed = 0
         # Search in scope
@@ -261,11 +257,6 @@ class BasePlugin:
                 scope,
                 currentEnergyConsumed
             ))
-            ##text2log = "Found {} in building {} {} CurrentEnergyConsumed {} kWh"
-            ##text2log = text2log.format(device['DeviceName'],
-                                       ##building["Name"],
-                                       ##scope, currentEnergyConsumed)
-            ##Domoticz.Log(text2log)
             return (nr_of_Units, idoffset, cEnergyConsumed)
 
         for item in building["Structure"][scope]:
@@ -427,12 +418,6 @@ class BasePlugin:
                 current_unit['power'] = True
                 current_unit['op_mode'] = self.domoticz_levels['mode'][str(Level)]
                 flag = 3  # Power (1) + OperationMode (2)
-                #flag = 1
-                #current_unit['power'] = 'true'
-                #self.melcloud_set(current_unit, flag)
-                #flag = 6
-                #current_unit['power'] = 'true'
-                #current_unit['op_mode'] = self.domoticz_levels['mode'][str(Level)]
                 Devices[2+current_unit['idoffset']].Update(nValue=1,
                                                            sValue=str(Devices[Unit + 1].sValue))
                 Devices[3+current_unit['idoffset']].Update(nValue=1,
@@ -488,7 +473,6 @@ class BasePlugin:
             Domoticz.Debug("Poll unit")
             refresh_seconds = int(Parameters['Mode2'])
             self.runCounter = max(1, int(refresh_seconds / self.heartbeat_interval))
-            ##self.runCounter = int(Parameters['Mode2'])
             if (self.melcloud_conn is not None and (self.melcloud_conn.Connecting() or self.melcloud_conn.Connected())):
                if self.melcloud_state != "LOGIN_FAILED":
                    Domoticz.Debug("Current MEL Cloud Key ID:"+str(self.melcloud_key))
@@ -548,10 +532,6 @@ class BasePlugin:
 
     def melcloud_send_data_json(self, url, values, state):
         # Verhindert überlappende UNIT_INFO Requests -> reduziert 500 massiv
-        ##if state == "UNIT_INFO" and self.melcloud_state == "UNIT_INFO":
-            ##Domoticz.Debug("Skip UNIT_INFO: previous UNIT_INFO still running")
-            ##return True
-
         self.melcloud_state = state
         
         #self.melcloud_state = state
@@ -574,9 +554,6 @@ class BasePlugin:
     def melcloud_login(self):
         data = "AppVersion=1.31.0.0&Email={0}&Password={1}&Language={2}".format(Parameters["Username"], Parameters["Password"], int(Parameters["Mode3"]))
         self.melcloud_send_data(self.melcloud_urls["login"], data, "LOGIN")
-        #post_fields = "Appversion:'{0}',CaptchaResponse:{1},Email:'{2}',Language:{3},Password:'{4}',Persist:{5}"
-        #post_fields = post_fields.format(str("1.23.4.0"), "null",str(Parameters["Username"]), int(Parameters["Mode3"]), str(Parameters["Password"]), "true")
-        #self.melcloud_send_data_json(self.melcloud_urls["login"], "{"+post_fields+"}", "LOGIN")
         return True
 
     def melcloud_add_unit(self, device, idoffset):
@@ -600,47 +577,6 @@ class BasePlugin:
     def melcloud_units_init(self):
         self.melcloud_send_data(self.melcloud_urls["list_unit"], None, "UNITS_INIT")
         return True
-
-    ##def _ensure_unit_defaults(self, unit):
-        # MELCloud mag keine leeren Felder in SET
-        ##if unit.get('op_mode', "") in ("", None):
-            ##unit['op_mode'] = 8  # Auto als Default
-
-        ##if unit.get('set_temp', "") in ("", None):
-            ##unit['set_temp'] = 21  # Default 21°C
-            
-    ##def melcloud_set_urlencode(self, unit, flag):
-        ##self._ensure_unit_defaults(unit)
-
-        # Debounce optional (falls du ihn drin hast, kann er bleiben)
-
-        ##fields = []
-        ##fields.append("Power={}".format(str(unit.get('power', False)).lower()))
-        ##fields.append("DeviceID={}".format(unit['id']))
-        ##fields.append("EffectiveFlags={}".format(flag))
-        ##fields.append("HasPendingCommand=true")
-
-        # Nur mitsenden, wenn sinnvoll gesetzt
-        ##if unit.get('op_mode', "") not in ("", None):
-            ##fields.append("OperationMode={}".format(unit['op_mode']))
-
-        ##if unit.get('set_temp', "") not in ("", None) and flag & 4:
-            # Temp nur mitsenden, wenn Flag Temp gesetzt ist
-            ##fields.append("SetTemperature={}".format(unit['set_temp']))
-
-        ##if unit.get('set_fan', "") not in ("", None) and flag & 8:
-            ##fields.append("SetFanSpeed={}".format(unit['set_fan']))
-
-        ##if unit.get('vaneH', "") not in ("", None) and flag & 256:
-            ##fields.append("VaneHorizontal={}".format(unit['vaneH']))
-
-        ##if unit.get('vaneV', "") not in ("", None) and flag & 16:
-            ##fields.append("VaneVertical={}".format(unit['vaneV']))
-
-        ##post_fields = "&".join(fields)
-        ##Domoticz.Error("SET SEND: {}".format(post_fields))
-        ##self.melcloud_send_data(self.melcloud_urls["set_unit"], post_fields, "SET")
-        ##return True
 
     def melcloud_set_json(self, unit, flag):
         # Sicherstellen, dass wir saubere Typen haben
@@ -673,13 +609,6 @@ class BasePlugin:
         self.melcloud_send_data_json(self.melcloud_urls["set_unit"], data, "SET")
         return True
 
-    #def melcloud_set(self, unit, flag):
-        #return self.melcloud_set_urlencode(unit, flag)
-        #post_fields = "'Power':{0},'DeviceID':{1},'OperationMode':{2},'SetTemperature':{3},'SetFanSpeed':{4},'VaneHorizontal':{5},'VaneVertical':{6},'EffectiveFlags':{7},'HasPendingCommand':true"
-        #post_fields = post_fields.format(str(unit['power']).lower(), unit['id'], unit['op_mode'], unit['set_temp'], unit['set_fan'], unit['vaneH'], unit['vaneV'], flag)
-        #Domoticz.Debug("SET COMMAND SEND {0}".format(post_fields))
-        #self.melcloud_send_data_json(self.melcloud_urls["set_unit"], "{"+post_fields+"}", "SET")
-
     def melcloud_get_unit_info(self, unit):
         now = time.time()
         device_id = unit.get('id')
@@ -694,9 +623,7 @@ class BasePlugin:
         url = self.melcloud_urls["unit_info"] + "?id=" + str(unit['id']) + "&buildingID=" + str(unit['building_id'])
         self.melcloud_send_data(url, None, "UNIT_INFO")
         return True
-        #url = self.melcloud_urls["unit_info"] + "?id=" + str(unit['id']) + "&buildingID=" + str(unit['building_id'])
-        #self.melcloud_send_data(url, None, "UNIT_INFO")
-
+        
     def domoticz_sync_switchs(self, unit):
         # Default value in case of problem
         setDomFan = 0
