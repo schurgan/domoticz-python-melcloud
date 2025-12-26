@@ -29,10 +29,7 @@
 #        Usefull if you use your Mitsubishi remote
 # v0.1 : Initial release
 """
-<plugin key="MELCloud" version="0.9.0" name="MELCloud plugin"
-    author="gysmo schurgan dalonsic ChatGPT"
-    externallink="http://www.melcloud.com/"
-    externallink="https://github.com/schurgan/domoticz-BSR" >
+<plugin key="MELCloud" version="0.9.0" name="MELCloud plugin" author="gysmo schurgan dalonsic ChatGPT" wikilink="https://github.com/schurgan/domoticz-BSR" externallink="http://www.melcloud.com">
     <params>
         <param field="Username" label="Email" width="200px" required="true" />
         <param field="Password" label="Password" width="200px" required="true" password="true"/>
