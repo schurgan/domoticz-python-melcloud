@@ -56,7 +56,7 @@ git pull
 
 ## Changelog
 
-###v1.0.0 (01.2026)
+### v1.0.0 (01.2026)
 - Endversion, code Optimierung/Säuberung.
 
 ### v0.9.0 (12.2025)
