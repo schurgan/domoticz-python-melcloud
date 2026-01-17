@@ -1,5 +1,5 @@
 # MELCloud Plugin
-# Author:     Gysmo/schurgan/Dalonsic/ChatGPT, 12.2025
+# Author:     Gysmo/schurgan/Dalonsic/ChatGPT, 01.2026
 # Version: 1.0.0
 #
 # Release Notes:
@@ -462,9 +462,11 @@ class BasePlugin:
                      Status + "," + str(Priority) + "," + Sound + "," + ImageFile)
 
     def onDisconnect(self, Connection):
-        self.melcloud_state = "Not Ready"
         Domoticz.Log("MELCloud has disconnected")
-        self.runAgain = 1
+        self.melcloud_state = "Not Ready"
+        self.melcloud_key = None
+        self.melcloud_conn = None   # WICHTIG: Connection-Objekt verwerfen
+        self.runAgain = 1           # schneller reconnect
 
     def onHeartbeat(self):
         # Unit info
@@ -512,7 +514,30 @@ class BasePlugin:
                         Domoticz.Device(Name=device['name'] + " - "+switch["name"], Unit=switch["id"]+device['idoffset'],
                                         TypeName=switch["typename"], Used=1).Create()
 
+    def _ensure_connected(self):
+        # Connection-Objekt fehlt -> neu anlegen und Connect starten
+        if self.melcloud_conn is None:
+            self.melcloud_conn = Domoticz.Connection(
+                Name="MELCloud",
+                Transport="TCP/IP",
+                Protocol="HTTPS",
+                Address=self.melcloud_baseurl,
+                Port=self.melcloud_port
+            )
+            self.melcloud_conn.Connect()
+            return False  # noch nicht verbunden
+
+        # Connection existiert, aber ist nicht verbunden -> Connect starten
+        if not (self.melcloud_conn.Connecting() or self.melcloud_conn.Connected()):
+            self.melcloud_conn.Connect()
+            return False  # wird gleich verbunden
+
+        return True  # verbunden oder gerade am Verbinden
+    
     def melcloud_send_data(self, url, values, state):
+        if not self._ensure_connected():
+            Domoticz.Debug("MELCloud not connected yet -> skip send (will retry)")
+            return True
         self.melcloud_state = state
         if self.melcloud_key is not None:
             headers = {'Content-Type': 'application/x-www-form-urlencoded;',
@@ -531,6 +556,9 @@ class BasePlugin:
         return True
 
     def melcloud_send_data_json(self, url, values, state):
+        if not self._ensure_connected():
+            Domoticz.Debug("MELCloud not connected yet -> skip send (will retry)")
+            return True
         # Verhindert überlappende UNIT_INFO Requests -> reduziert 500 massiv
         self.melcloud_state = state
         
